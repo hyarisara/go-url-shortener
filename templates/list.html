@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All URLs</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Stored URLs</h1>
+
+            <table>
+                <tr>
+                    <th>Code</th>
+                    <th>Original URL</th>
+                    <th>Action</th>
+                </tr>
+
+                {{range $k, $v := .}}
+                <tr>
+                    <td>{{$k}}</td>
+                    <td><a href="/r/{{$k}}" target="_blank">{{$v}}</a></td>
+                    <td><a class="delete" href="/delete/{{$k}}">Delete</a></td>
+                </tr>
+                {{end}}
+            </table>
+
+            <br>
+            <a href="/">Back</a>
+        </div>
+    </div>
+</body>
+</html>
