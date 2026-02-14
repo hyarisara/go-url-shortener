@@ -25,7 +25,8 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 	}
 
 	url := r.FormValue("url")
-	code, err := h.service.Shorten(url)
+	custom := r.FormValue("custom")
+	code, err := h.service.Shorten(url, custom)
 	if err != nil {
 		w.Write([]byte(err.Error()))
 		return

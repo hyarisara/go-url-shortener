@@ -22,11 +22,18 @@ func generateCode() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-func (s *URLService) Shorten(url string) (string, error) {
-	code, err := generateCode()
-	if err != nil {
-		return "", err
+// Shorten with optional custom code
+func (s *URLService) Shorten(url string, customCode string) (string, error) {
+	code := customCode
+	var err error
+
+	if code == "" {
+		code, err = generateCode()
+		if err != nil {
+			return "", err
+		}
 	}
+
 	return code, s.store.Save(code, url)
 }
 
