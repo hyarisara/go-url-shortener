@@ -9,7 +9,7 @@ import (
 
 type JSONStore struct {
 	file string
-	mu   sync.Mutex
+	mu   sync.RWMutex
 }
 
 func NewJSONStore(file string) *JSONStore {
@@ -53,8 +53,8 @@ func (s *JSONStore) Save(code string, url string) error {
 }
 
 func (s *JSONStore) Get(code string) (string, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
 	data, err := s.load()
 	if err != nil {
@@ -69,8 +69,8 @@ func (s *JSONStore) Get(code string) (string, error) {
 }
 
 func (s *JSONStore) List() (map[string]string, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.mu.RLock()
+	defer s.mu.RUnlock()
 
 	return s.load()
 }

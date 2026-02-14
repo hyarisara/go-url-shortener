@@ -3,64 +3,37 @@ package main
 import (
 	"html/template"
 	"net/http"
+	"os"
 )
 
-var templates = template.Must(template.ParseGlob("templates/*.html"))
-
-
 func main() {
-	initStore()
-    http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/shorten", shortenHandler)
-	http.HandleFunc("/r/", redirectHandler)
-	http.HandleFunc("/list", listHandler)
-	http.HandleFunc("/delete/", deleteHandler)
+	// create store
+	jsonStore := NewJSONStore("data.json")
 
-	println("Server running on http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
-}
+	// create service
+	urlService := NewURLService(jsonStore)
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	templates.ExecuteTemplate(w, "index.html", nil)
-}
+	// templates
+	templates := template.Must(template.ParseGlob("templates/*.html"))
 
-func shortenHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-		return
+	// handlers
+	h := NewHandler(urlService, templates)
+
+	// static
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+
+	// routes
+	http.HandleFunc("/", h.Home)
+	http.HandleFunc("/shorten", h.Shorten)
+	http.HandleFunc("/r/", h.Redirect)
+	http.HandleFunc("/list", h.List)
+	http.HandleFunc("/delete/", h.Delete)
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
 
-	url := r.FormValue("url")
-	code, err := ShortenURL(url)
-	if err != nil {
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	result := "http://localhost:8080/r/" + code
-	templates.ExecuteTemplate(w, "index.html", result)
-}
-
-func redirectHandler(w http.ResponseWriter, r *http.Request) {
-	code := r.URL.Path[len("/r/"):]
-
-	url, err := ExpandURL(code)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	http.Redirect(w, r, url, http.StatusFound)
-}
-
-func listHandler(w http.ResponseWriter, r *http.Request) {
-	data, _ := store.List()
-	templates.ExecuteTemplate(w, "list.html", data)
-}
-
-func deleteHandler(w http.ResponseWriter, r *http.Request) {
-	code := r.URL.Path[len("/delete/"):]
-	store.Delete(code)
-	http.Redirect(w, r, "/list", http.StatusSeeOther)
+	println("Server running on :" + port)
+	http.ListenAndServe(":"+port, nil)
 }

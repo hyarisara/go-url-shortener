@@ -86,3 +86,10 @@ tr:nth-child(even) {
 .delete {
     color: red;
 }
+
+.result input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}

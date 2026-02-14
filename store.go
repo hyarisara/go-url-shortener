@@ -6,9 +6,3 @@ type UrlStore interface {
 	List() (map[string]string, error)
 	Delete(code string) error
 }
-
-var store UrlStore
-
-func initStore() {
-	store = NewJSONStore("data.json")
-}

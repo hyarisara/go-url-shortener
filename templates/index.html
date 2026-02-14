@@ -17,7 +17,15 @@
             {{if .}}
             <div class="result">
                 <strong>Short URL:</strong><br>
-                <a href="{{.}}" target="_blank">{{.}}</a>
+
+                <div style="display:flex; gap:10px; margin-top:8px;">
+                    <input id="shortUrl" value="{{.}}" readonly>
+                    <button type="button" onclick="copyURL()">Copy</button>
+                </div>
+
+                <small id="copyMsg" style="color:green; display:none;">
+                    Copied to clipboard!
+                </small>
             </div>
             {{end}}
 
@@ -25,5 +33,23 @@
             <a href="/list">View All URLs</a>
         </div>
     </div>
+
+<script>
+function copyURL() {
+    const input = document.getElementById("shortUrl");
+    input.select();
+    input.setSelectionRange(0, 99999);
+
+    navigator.clipboard.writeText(input.value);
+
+    const msg = document.getElementById("copyMsg");
+    msg.style.display = "block";
+
+    setTimeout(() => {
+        msg.style.display = "none";
+    }, 2000);
+}
+</script>
+
 </body>
 </html>

@@ -5,6 +5,14 @@ import (
 	"encoding/hex"
 )
 
+type URLService struct {
+	store UrlStore
+}
+
+func NewURLService(s UrlStore) *URLService {
+	return &URLService{store: s}
+}
+
 func generateCode() (string, error) {
 	b := make([]byte, 3)
 	_, err := rand.Read(b)
@@ -14,15 +22,22 @@ func generateCode() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-func ShortenURL(url string) (string, error) {
+func (s *URLService) Shorten(url string) (string, error) {
 	code, err := generateCode()
 	if err != nil {
 		return "", err
 	}
-
-	return code, store.Save(code, url)
+	return code, s.store.Save(code, url)
 }
 
-func ExpandURL(code string) (string, error) {
-	return store.Get(code)
+func (s *URLService) Expand(code string) (string, error) {
+	return s.store.Get(code)
+}
+
+func (s *URLService) List() (map[string]string, error) {
+	return s.store.List()
+}
+
+func (s *URLService) Delete(code string) error {
+	return s.store.Delete(code)
 }
