@@ -22,3 +22,9 @@ The application provides both a CLI interface and a browser-based UI, with persi
 
 The project follows a layered design:
 
+---
+
+## User Interface Design Screenshot
+
+<img width="1165" height="492" alt="image" src="https://github.com/user-attachments/assets/b25d3f6b-ec00-4506-8ee3-b19ca446a12e" />
+
