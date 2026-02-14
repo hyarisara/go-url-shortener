@@ -32,4 +32,9 @@ The project follows a layered design:
 <img width="858" height="366" alt="image" src="https://github.com/user-attachments/assets/2e17decd-0895-4d21-b81b-c9bfe911b09a" />
 
 - Output
-<img width="811" height="420" alt="image" src="https://github.com/user-attachments/assets/3fb5b8d3-24b7-4f96-99a0-56c32e732d3b" />
+<img width="737" height="434" alt="image" src="https://github.com/user-attachments/assets/3a13e0ad-a132-4893-8daa-de57c447e95f" />
+
+- My URLs
+<img width="762" height="494" alt="image" src="https://github.com/user-attachments/assets/a7f290ad-66ee-49a6-baa3-0680fe6d052b" />
+
+
