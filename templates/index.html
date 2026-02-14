@@ -1,47 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>URL Shortener</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<div class="container">
-    <div class="card">
-        <h1>Shorten a URL</h1>
+    <div class="header">
+        <span class="username">Logged in as: {{.Username}}</span>
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
 
-        <form action="/shorten" method="POST">
-            <input type="text" name="url" placeholder="https://example.com" required>
-            <input type="text" name="custom" placeholder="Optional custom code">
+    <div class="container">
+        <h2>Shorten a URL</h2>
+        <form action="/shorten" method="post">
+            <input type="text" name="url" placeholder="Enter URL" required>
+            <input type="text" name="custom" placeholder="Custom code (optional)">
             <button type="submit">Shorten</button>
         </form>
 
-        {{if .}}
+        {{if .ShortURL}}
         <div class="result">
-            <strong>Short URL:</strong><br>
-            <div style="display:flex; gap:10px; margin-top:8px;">
-                <input id="shortUrl" value="{{.}}" readonly>
-                <button type="button" onclick="copyURL()">Copy</button>
-            </div>
-            <small id="copyMsg" style="color:green; display:none;">Copied to clipboard!</small>
+            <p>Short URL: <a href="{{.ShortURL}}" target="_blank">{{.ShortURL}}</a></p>
+            <button onclick="copyToClipboard('{{.ShortURL}}')">Copy</button>
         </div>
         {{end}}
-
-        <br>
-        <a href="/list">View All URLs</a>
     </div>
-</div>
 
-<script>
-function copyURL() {
-    const input = document.getElementById("shortUrl");
-    input.select();
-    input.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(input.value);
-
-    const msg = document.getElementById("copyMsg");
-    msg.style.display = "block";
-    setTimeout(() => { msg.style.display = "none"; }, 2000);
-}
-</script>
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Copied to clipboard!");
+            });
+        }
+    </script>
 </body>
 </html>

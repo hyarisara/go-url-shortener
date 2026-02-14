@@ -18,7 +18,6 @@ func NewJSONStore(file string) *JSONStore {
 
 func (s *JSONStore) load() (map[string]string, error) {
 	data := make(map[string]string)
-
 	b, err := os.ReadFile(s.file)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -26,7 +25,6 @@ func (s *JSONStore) load() (map[string]string, error) {
 		}
 		return nil, err
 	}
-
 	json.Unmarshal(b, &data)
 	return data, nil
 }
@@ -42,12 +40,10 @@ func (s *JSONStore) save(data map[string]string) error {
 func (s *JSONStore) Save(code string, url string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
 	data, err := s.load()
 	if err != nil {
 		return err
 	}
-
 	data[code] = url
 	return s.save(data)
 }
@@ -55,35 +51,30 @@ func (s *JSONStore) Save(code string, url string) error {
 func (s *JSONStore) Get(code string) (string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-
 	data, err := s.load()
 	if err != nil {
 		return "", err
 	}
-
-	u, ok := data[code]
+	url, ok := data[code]
 	if !ok {
 		return "", errors.New("not found")
 	}
-	return u, nil
+	return url, nil
 }
 
 func (s *JSONStore) List() (map[string]string, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-
 	return s.load()
 }
 
 func (s *JSONStore) Delete(code string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
 	data, err := s.load()
 	if err != nil {
 		return err
 	}
-
 	delete(data, code)
 	return s.save(data)
 }

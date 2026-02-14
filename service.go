@@ -22,27 +22,35 @@ func generateCode() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-// Shorten with optional custom code
-func (s *URLService) Shorten(url string, customCode string) (string, error) {
+// ShortenForUser stores URL per user
+func (s *URLService) ShortenForUser(username, url, customCode string) (string, error) {
 	code := customCode
 	var err error
-
 	if code == "" {
 		code, err = generateCode()
 		if err != nil {
 			return "", err
 		}
 	}
+	userKey := username + "::" + code
+	return code, s.store.Save(userKey, url)
+}
 
-	return code, s.store.Save(code, url)
+// ListForUser lists URLs for a specific user
+func (s *URLService) ListForUser(username string) (map[string]string, error) {
+	allData, _ := s.store.List()
+	userData := make(map[string]string)
+	for k, v := range allData {
+		prefix := username + "::"
+		if len(k) > len(prefix) && k[:len(prefix)] == prefix {
+			userData[k[len(prefix):]] = v
+		}
+	}
+	return userData, nil
 }
 
 func (s *URLService) Expand(code string) (string, error) {
 	return s.store.Get(code)
-}
-
-func (s *URLService) List() (map[string]string, error) {
-	return s.store.List()
 }
 
 func (s *URLService) Delete(code string) error {

@@ -1,32 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>All URLs</title>
+    <meta charset="UTF-8">
+    <title>My URLs</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<div class="container">
-    <div class="card">
-        <h1>All Shortened URLs</h1>
+    <div class="header">
+        <span class="username">Logged in as: {{.Username}}</span>
+        <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+
+    <div class="container">
+        <h2>My Shortened URLs</h2>
+        {{if .URLs}}
         <table>
             <tr>
-                <th>Code</th>
+                <th>Short Code</th>
                 <th>Original URL</th>
                 <th>Actions</th>
             </tr>
-            {{range $code, $url := .}}
+            {{range $code, $url := .URLs}}
             <tr>
                 <td>{{$code}}</td>
                 <td><a href="{{$url}}" target="_blank">{{$url}}</a></td>
                 <td>
-                    <a href="/r/{{$code}}" target="_blank">Go</a> |
-                    <a href="/delete/{{$code}}" onclick="return confirm('Delete {{$code}}?');">Delete</a>
+                    <button onclick="copyToClipboard('/r/{{$code}}')">Copy</button>
+                    <a href="/delete/{{$code}}" onclick="return confirm('Delete this URL?')">Delete</a>
                 </td>
             </tr>
             {{end}}
         </table>
-        <br><a href="/">Shorten another URL</a>
+        {{else}}
+        <p>You have no URLs yet.</p>
+        {{end}}
     </div>
-</div>
+
+    <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Copied to clipboard!");
+            });
+        }
+    </script>
 </body>
 </html>
