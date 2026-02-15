@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register • Go URL Shortener</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=2">
+</head>
+<body>
+
+<div class="page">
+    <div class="card auth-card">
+
+        <div class="auth-header">
+            <div class="logo">📝</div>
+            <div>
+                <div class="title">Create Account</div>
+                <div class="subtitle">Start shortening and managing your links</div>
+            </div>
+        </div>
+
+        <hr class="sep">
+
+        {{if .}}
+        <div class="error-box">{{.}}</div>
+        {{end}}
+
+        <form method="POST" action="/register" class="form">
+            <label class="label">Username</label>
+            <input class="input" type="text" name="username" required>
+
+            <label class="label">Password</label>
+            <input class="input" type="password" name="password" required>
+
+            <button class="btn btn-primary" type="submit">Register</button>
+        </form>
+
+        <div class="auth-footer">
+            Already have an account?
+            <a class="link-accent" href="/login">Login</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Go URL Shortener</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+<body>
+
+  <div class="page">
+    <div class="card">
+
+      <div class="topbar">
+        <div class="brand">
+          <div class="logo">🔗</div>
+          <div>
+            <div class="title">Go URL Shortener</div>
+            <div class="subtitle">Shorten links, manage them per account</div>
+          </div>
+        </div>
+
+        <div class="userbox">
+          <span class="userpill">{{.Username}}</span>
+          <a class="btn btn-ghost" href="/list">My URLs</a>
+          <a class="btn btn-ghost" href="/logout">Logout</a>
+        </div>
+      </div>
+
+      <hr class="sep" />
+
+      <h2 class="section-title">Shorten a URL</h2>
+
+      <form class="form" method="POST" action="/shorten">
+        <label class="label">Long URL</label>
+        <input class="input" type="url" name="url" placeholder="https://example.com/very/long/link" required>
+
+        <label class="label">Custom code (optional)</label>
+        <input class="input" type="text" name="custom" placeholder="e.g. my-link">
+
+        <button class="btn btn-primary" type="submit">Shorten</button>
+      </form>
+
+      <!-- ✅ OUTPUT BOX -->
+      {{if .ShortURL}}
+      <div class="result">
+        <div class="result-head">Your short link</div>
+
+        <div class="result-row">
+          <!-- show full clickable link -->
+          <a id="shortLink" class="result-link" href="{{.ShortURL}}">
+            {{.ShortURL}}
+          </a>
+
+          <button class="btn btn-secondary" type="button" onclick="copyShortLink()">
+            Copy
+          </button>
+        </div>
+
+        <div id="copyMsg" class="copy-msg" style="display:none;">Copied ✅</div>
+      </div>
+      {{end}}
+
+    </div>
+  </div>
+
+  <script>
+    function copyShortLink() {
+      const el = document.getElementById("shortLink");
+      if (!el) return;
+
+      // If your ShortURL is relative (/r/abc), make a full URL for copy
+      const full = new URL(el.getAttribute("href"), window.location.origin).toString();
+
+      navigator.clipboard.writeText(full).then(() => {
+        const msg = document.getElementById("copyMsg");
+        if (msg) {
+          msg.style.display = "block";
+          setTimeout(() => msg.style.display = "none", 1400);
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

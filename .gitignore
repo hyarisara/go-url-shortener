@@ -1,3 +1,15 @@
 *.exe
 data.json
 *.log
+# Local database
+data.db
+
+# Build files
+*.exe
+
+# Environment files
+.env
+
+# OS files
+.DS_Store
+Thumbs.db

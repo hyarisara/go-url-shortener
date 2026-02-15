@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>My URLs • Go URL Shortener</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <div class="page">
+    <div class="card">
+
+      <div class="topbar">
+        <div class="brand">
+          <div class="logo">📚</div>
+          <div>
+            <div class="title">My URLs</div>
+            <div class="subtitle">All shortened links for your account</div>
+          </div>
+        </div>
+
+        <div class="userbox">
+          <span class="userpill">{{.Username}}</span>
+          <a class="btn btn-ghost" href="/">Home</a>
+          <a class="btn btn-ghost" href="/logout">Logout</a>
+        </div>
+      </div>
+
+      <hr class="sep" />
+
+      <div class="toolbar">
+        <div class="searchWrap">
+          <input id="searchInput" class="input input-search" type="text" placeholder="Search by code or URL...">
+        </div>
+      </div>
+
+      {{if .URLs}}
+      <div class="tableWrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Original URL</th>
+              <th>Short Link</th>
+              <th class="th-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{range $code, $url := .URLs}}
+            <tr>
+              <td><span class="codePill">{{$code}}</span></td>
+              <td class="td-url">
+                <a class="link-muted" href="{{$url}}" target="_blank" rel="noreferrer">{{$url}}</a>
+              </td>
+              <td class="td-short">
+                <a class="link-accent" href="/r/{{$code}}" target="_blank" rel="noreferrer">/r/{{$code}}</a>
+              </td>
+              <td class="td-actions">
+                <button class="btn btn-secondary btn-sm" type="button" onclick="copyShort('/r/{{$code}}')">Copy</button>
+                <a class="btn btn-danger btn-sm" href="/delete/{{$code}}" onclick="return confirm('Delete this short URL?')">Delete</a>
+              </td>
+            </tr>
+            {{end}}
+          </tbody>
+        </table>
+      </div>
+      {{else}}
+        <div class="empty">
+          <div class="emptyTitle">No links yet</div>
+          <div class="emptySub">Go to Home and create your first short link.</div>
+          <a class="btn btn-primary" href="/">Go to Home</a>
+        </div>
+      {{end}}
+
+    </div>
+  </div>
+
+  <script>
+    function copyShort(path) {
+      const full = new URL(path, window.location.origin).toString();
+      navigator.clipboard.writeText(full).then(() => {
+        toast("Copied ✅");
+      });
+    }
+
+    function toast(msg) {
+      const t = document.createElement("div");
+      t.className = "toast";
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.classList.add("show"), 10);
+      setTimeout(() => {
+        t.classList.remove("show");
+        setTimeout(() => t.remove(), 200);
+      }, 1400);
+    }
+
+    // Simple client-side search filter
+    const input = document.getElementById("searchInput");
+    if (input) {
+      input.addEventListener("input", () => {
+        const q = input.value.toLowerCase();
+        document.querySelectorAll("tbody tr").forEach(tr => {
+          const text = tr.innerText.toLowerCase();
+          tr.style.display = text.includes(q) ? "" : "none";
+        });
+      });
+    }
+  </script>
+
+</body>
+</html>

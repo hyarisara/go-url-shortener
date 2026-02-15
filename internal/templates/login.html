@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login • Go URL Shortener</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=2">
+</head>
+<body>
+
+<div class="page">
+    <div class="card auth-card">
+
+        <div class="auth-header">
+            <div class="logo">🔐</div>
+            <div>
+                <div class="title">Welcome Back</div>
+                <div class="subtitle">Login to manage your shortened links</div>
+            </div>
+        </div>
+
+        <hr class="sep">
+
+        {{if .}}
+        <div class="error-box">{{.}}</div>
+        {{end}}
+
+        <form method="POST" action="/login" class="form">
+            <label class="label">Username</label>
+            <input class="input" type="text" name="username" required>
+
+            <label class="label">Password</label>
+            <input class="input" type="password" name="password" required>
+
+            <button class="btn btn-primary" type="submit">Login</button>
+        </form>
+
+        <div class="auth-footer">
+            Don't have an account?
+            <a class="link-accent" href="/register">Register</a>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>
