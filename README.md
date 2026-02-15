@@ -3,6 +3,21 @@
 A full-stack URL shortener built with Go, featuring user authentication, SQLite storage, and a modern dark-themed web interface. Each user can create, manage, and organize their own shortened links.
 
 ---
+# Screenshots
+
+### Register
+<img width="625" height="483" alt="image" src="https://github.com/user-attachments/assets/ec207a97-1098-4009-a72b-184da5312cab" />
+
+### Login
+<img width="569" height="475" alt="image" src="https://github.com/user-attachments/assets/da30a601-e776-47d0-9fbd-0835a95cf0fd" />
+
+### Home
+<img width="1125" height="628" alt="image" src="https://github.com/user-attachments/assets/a9877d8a-8a1a-46dd-8e77-784ce00af5cd" />
+
+### URL list
+<img width="1102" height="453" alt="image" src="https://github.com/user-attachments/assets/7cca40df-6698-48ec-99b2-71dac231dff4" />
+
+---
 
 ## Features
 
@@ -210,7 +225,7 @@ Make sure the server has write permission for the SQLite file.
 ## Author
 
 Sara Alhyari  
-Computer Science Student | Data Analyst | Go Developer  
+Computer Science Student | Data Analyst 
 
 GitHub:  
 https://github.com/hyarisara
