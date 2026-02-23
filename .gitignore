@@ -3,7 +3,7 @@ data.json
 *.log
 # Local database
 data.db
-
+*.db
 # Build files
 *.exe
 
