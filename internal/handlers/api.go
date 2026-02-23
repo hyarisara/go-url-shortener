@@ -3,6 +3,7 @@ package handlers
 import (
 	"html/template"
 	"net/http"
+	"strconv"
 
 	"go-url-shortener/internal/actions"
 	"go-url-shortener/internal/middlewares"
@@ -15,11 +16,7 @@ type Handler struct {
 	templates  *template.Template
 }
 
-func NewHandler(
-	urlService *actions.URLService,
-	userStore store.UserStore,
-	t *template.Template,
-) *Handler {
+func NewHandler(urlService *actions.URLService, userStore store.UserStore, t *template.Template) *Handler {
 	return &Handler{
 		urlService: urlService,
 		userStore:  userStore,
@@ -85,7 +82,7 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 //////////////////////
-// URL
+// URL FEATURES
 //////////////////////
 
 func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +95,6 @@ func (h *Handler) Home(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"Username": user,
 	}
-
 	h.templates.ExecuteTemplate(w, "index.html", data)
 }
 
@@ -114,12 +110,12 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	originalURL := r.FormValue("url")
+	url := r.FormValue("url")
 	custom := r.FormValue("custom")
 
-	code, err := h.urlService.ShortenForUser(user, originalURL, custom)
+	code, err := h.urlService.ShortenForUser(user, url, custom)
 	if err != nil {
-		http.Error(w, "Error shortening", http.StatusInternalServerError)
+		http.Error(w, "Failed to shorten URL", http.StatusInternalServerError)
 		return
 	}
 
@@ -127,20 +123,19 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 		"Username": user,
 		"ShortURL": "/r/" + code,
 	}
-
 	h.templates.ExecuteTemplate(w, "index.html", data)
 }
 
 func (h *Handler) Redirect(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Path[len("/r/"):]
-
 	url, err := h.urlService.Expand(code)
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	http.Redirect(w, r, url, http.StatusFound)
+	// ✅ Use 301 permanent redirect (mentor request)
+	http.Redirect(w, r, url, http.StatusMovedPermanently)
 }
 
 func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
@@ -150,17 +145,35 @@ func (h *Handler) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	urls, err := h.urlService.ListForUser(user)
+	q := r.URL.Query().Get("q")
+	sort := r.URL.Query().Get("sort")
+	if sort == "" {
+		sort = "created"
+	}
+
+	page := 1
+	if pStr := r.URL.Query().Get("page"); pStr != "" {
+		if p, err := strconv.Atoi(pStr); err == nil && p > 0 {
+			page = p
+		}
+	}
+	pageSize := 20
+
+	urls, err := h.urlService.ListForUserPaged(user, q, sort, page, pageSize)
 	if err != nil {
-		http.Error(w, "Error loading URLs", http.StatusInternalServerError)
+		http.Error(w, "Failed to load URLs", http.StatusInternalServerError)
 		return
 	}
 
 	data := map[string]interface{}{
 		"Username": user,
 		"URLs":     urls,
+		"Q":        q,
+		"Sort":     sort,
+		"Page":     page,
+		"PrevPage": max(1, page-1),
+		"NextPage": page + 1,
 	}
-
 	h.templates.ExecuteTemplate(w, "list.html", data)
 }
 
@@ -172,12 +185,15 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	code := r.URL.Path[len("/delete/"):]
-	key := user + "::" + code
+	userKey := user + "::" + code
 
-	if err := h.urlService.Delete(key); err != nil {
-		http.Error(w, "Error deleting", http.StatusInternalServerError)
-		return
-	}
-
+	_ = h.urlService.Delete(userKey)
 	http.Redirect(w, r, "/list", http.StatusSeeOther)
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }

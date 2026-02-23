@@ -29,9 +29,30 @@
 
       <hr class="sep" />
 
+      <!-- ✅ Server-side Search + Sort + Pager -->
+      <div class="toolbar toolbar-split">
+        <form method="GET" action="/list" class="search-bar">
+          <input class="input" type="text" name="q" placeholder="Search by code or URL..." value="{{.Q}}">
+
+          <select class="input" name="sort">
+            <option value="created" {{if eq .Sort "created"}}selected{{end}}>Newest</option>
+            <option value="updated" {{if eq .Sort "updated"}}selected{{end}}>Recently updated</option>
+          </select>
+
+          <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+
+        <div class="pager">
+          <a class="btn" href="/list?q={{.Q}}&sort={{.Sort}}&page={{.PrevPage}}">Prev</a>
+          <span class="muted">Page {{.Page}}</span>
+          <a class="btn" href="/list?q={{.Q}}&sort={{.Sort}}&page={{.NextPage}}">Next</a>
+        </div>
+      </div>
+
+      <!-- ✅ Optional client-side quick filter (only if you want it) -->
       <div class="toolbar">
         <div class="searchWrap">
-          <input id="searchInput" class="input input-search" type="text" placeholder="Search by code or URL...">
+          <input id="searchInput" class="input input-search" type="text" placeholder="Quick filter in this page (no reload)">
         </div>
       </div>
 
@@ -50,12 +71,15 @@
             {{range $code, $url := .URLs}}
             <tr>
               <td><span class="codePill">{{$code}}</span></td>
+
               <td class="td-url">
                 <a class="link-muted" href="{{$url}}" target="_blank" rel="noreferrer">{{$url}}</a>
               </td>
+
               <td class="td-short">
                 <a class="link-accent" href="/r/{{$code}}" target="_blank" rel="noreferrer">/r/{{$code}}</a>
               </td>
+
               <td class="td-actions">
                 <button class="btn btn-secondary btn-sm" type="button" onclick="copyShort('/r/{{$code}}')">Copy</button>
                 <a class="btn btn-danger btn-sm" href="/delete/{{$code}}" onclick="return confirm('Delete this short URL?')">Delete</a>
@@ -79,9 +103,7 @@
   <script>
     function copyShort(path) {
       const full = new URL(path, window.location.origin).toString();
-      navigator.clipboard.writeText(full).then(() => {
-        toast("Copied ✅");
-      });
+      navigator.clipboard.writeText(full).then(() => toast("Copied ✅"));
     }
 
     function toast(msg) {
@@ -96,7 +118,7 @@
       }, 1400);
     }
 
-    // Simple client-side search filter
+    // Simple client-side filter (only filters current page results)
     const input = document.getElementById("searchInput");
     if (input) {
       input.addEventListener("input", () => {

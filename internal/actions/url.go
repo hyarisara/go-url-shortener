@@ -16,10 +16,6 @@ func NewURLService(s store.URLStore) *URLService {
 	return &URLService{store: s}
 }
 
-//////////////////////
-// Helpers
-//////////////////////
-
 func generateCode() (string, error) {
 	b := make([]byte, 3)
 	_, err := rand.Read(b)
@@ -29,13 +25,8 @@ func generateCode() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-//////////////////////
-// Business Logic
-//////////////////////
-
 func (s *URLService) ShortenForUser(username, originalURL, custom string) (string, error) {
 	code := custom
-
 	if code == "" {
 		var err error
 		code, err = generateCode()
@@ -45,18 +36,21 @@ func (s *URLService) ShortenForUser(username, originalURL, custom string) (strin
 	}
 
 	key := username + "::" + code
-
 	err := s.store.SaveURL(key, originalURL)
 	return code, err
 }
 
 func (s *URLService) Expand(code string) (string, error) {
-	// we don't know the user → store should find by code
 	return s.store.GetURLByCode(code)
 }
 
 func (s *URLService) ListForUser(username string) (map[string]string, error) {
 	return s.store.ListByUser(username)
+}
+
+// ✅ Step 2: search + sort + pagination
+func (s *URLService) ListForUserPaged(username, q, sort string, page, pageSize int) (map[string]string, error) {
+	return s.store.ListByUserPaged(username, q, sort, page, pageSize)
 }
 
 func (s *URLService) Delete(key string) error {

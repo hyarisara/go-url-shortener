@@ -3,36 +3,58 @@ package sqlite
 import (
 	"database/sql"
 	"errors"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
-type SQLiteUserStore struct {
+type UserStore struct {
 	db *sql.DB
 }
 
-func NewUserStore(file string) *SQLiteUserStore {
-	db, _ := sql.Open("sqlite3", file)
-	db.Exec("CREATE TABLE IF NOT EXISTS users(username TEXT PRIMARY KEY, hash TEXT)")
-	return &SQLiteUserStore{db: db}
+func NewUserStore(dbPath string) *UserStore {
+	db, err := openDB(dbPath)
+	if err != nil {
+		panic(err)
+	}
+	return &UserStore{db: db}
 }
 
-func (s *SQLiteUserStore) SaveUser(username, hash string) error {
-	_, err := s.db.Exec("INSERT INTO users(username, hash) VALUES(?, ?)", username, hash)
+// UserExists checks if username already exists
+func (s *UserStore) UserExists(username string) bool {
+	var id int64
+	err := s.db.QueryRow(`SELECT id FROM users WHERE username = ?`, username).Scan(&id)
+	return err == nil
+}
+
+// SaveUser inserts a new user (username must be unique)
+func (s *UserStore) SaveUser(username, passwordHash string) error {
+	_, err := s.db.Exec(`
+		INSERT INTO users (username, password_hash, created_at, updated_at)
+		VALUES (?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+	`, username, passwordHash)
 	return err
 }
 
-func (s *SQLiteUserStore) GetUser(username string) (string, error) {
+// GetUser returns password hash for login validation
+func (s *UserStore) GetUser(username string) (string, error) {
 	var hash string
-	row := s.db.QueryRow("SELECT hash FROM users WHERE username=?", username)
-	err := row.Scan(&hash)
+	err := s.db.QueryRow(`SELECT password_hash FROM users WHERE username = ?`, username).Scan(&hash)
 	if err != nil {
-		return "", errors.New("user not found")
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", errors.New("user not found")
+		}
+		return "", err
 	}
 	return hash, nil
 }
 
-func (s *SQLiteUserStore) UserExists(username string) bool {
-	_, err := s.GetUser(username)
-	return err == nil
+// GetUserID is needed by URL store to link URLs with user_id FK
+func (s *UserStore) GetUserID(username string) (int64, error) {
+	var id int64
+	err := s.db.QueryRow(`SELECT id FROM users WHERE username = ?`, username).Scan(&id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, errors.New("user not found")
+		}
+		return 0, err
+	}
+	return id, nil
 }
